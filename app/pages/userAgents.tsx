@@ -255,6 +255,7 @@ export default function UserAgents() {
 
   const performToolCall = async (toolCall: any): Promise<any | undefined> => {
     try {
+      // @ts-ignore
       const functionToCall = availableFunctions[toolCall.function.name];
       console.log(functionToCall);
       const functionArgs = JSON.parse(toolCall.function.arguments);

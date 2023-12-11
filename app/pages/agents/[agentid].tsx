@@ -12,6 +12,7 @@ import {
   Select,
   Tag,
 } from "@chakra-ui/react";
+import { useToast } from '@chakra-ui/react'
 import { useState } from "react";
 import { useRouter } from "next/router";
 import {
@@ -67,6 +68,7 @@ const AgentId = () => {
   const router = useRouter();
   const { address: userAccount } = useAccount();
   const _agentId = router.query.agentid;
+  const toast = useToast()
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [agentData, setAgentData] = useState<agentDataType>();
@@ -123,12 +125,12 @@ const AgentId = () => {
       if (typeof _agentId == "string") {
         getAgentData(_agentId);
         if (userAccount) {
-          // checkSubscription(_agentId);
-          isUserSubscribed(Number(_agentId));
+          checkSubscription(_agentId);
+          // isUserSubscribed(Number(_agentId));
         }
       }
     }
-  }, [router]);
+  }, [router, userAccount]);
 
   const getAssistant = async (assistantID: string) => {
     console.log("Fetching thread... Calling OpenAI");
@@ -240,13 +242,14 @@ const AgentId = () => {
       // // TODO : Check the subID again after the new graph V
 
       // console.log(subId);
-      const subscriptionData = await getSubscription(
-        `${userAccount}-${agentId}`
-      );
-      console.log("here: ", subscriptionData);
+      const subId = `${userAccount.toLowerCase()}-${agentId}`;
+      // console.log(subId);
+      const subscriptionData = await getSubscription(subId);
+      // console.log("here: ", subscriptionData);
       // or Unlock protocol graphQl
       // Or contract balance ERC721 method
-      setIsSubscribed(subscriptionData?.subscriptionEntity);
+      const isSubscribed = subscriptionData?.subscriptionEntity ? true : false;
+      setIsSubscribed(isSubscribed);
     } catch (error) {
       console.log(error);
     }
@@ -290,6 +293,13 @@ const AgentId = () => {
         hash: hash,
       });
       console.log(transaction);
+      await toast({
+        title: 'Agent Subscribed',
+        description: "Your agent has been created subscribed",
+        status: 'success',
+        duration: 9000,
+        isClosable: true,
+      })
     } catch (error) {
       console.log(error);
     }
@@ -338,7 +348,7 @@ const AgentId = () => {
       </div>
       <div className="flex flex-col mt-14">
         <div className="mx-auto">
-          <div className="grid grid-flow-col grid-cols-4 grid-rows-1 gap-x-10 w-full mt-10">
+          <div className="grid grid-flow-col grid-cols-4 grid-rows-1 gap-x-10 w-11/12 justify-center mx-auto mt-10">
             <div className="border-2 bg-pink-100 border-b-8 flex flex-col px-14 py-3 border-black shadow-2xl">
               <p className="text-sm font-mono font-thin text-gray-500">
                 Agent Name
@@ -440,13 +450,7 @@ const AgentId = () => {
             <div className="mt-4 flex flex-col">
               <button
                 onClick={() => {
-                  isSubscribed ||
-                  !(
-                    agentData?.agentCreator.toLowerCase() ==
-                    userAccount?.toLowerCase()
-                  )
-                    ? router.push(`/userAgents`)
-                    : onOpen();
+                  isSubscribed ? router.push(`/userAgents`) : onOpen();
                 }}
                 className="font-semibold text-xl bg-pink-100 px-10 py-2 border border-black border-b-4 rounded-xl cursor-pointer"
               >
@@ -620,13 +624,11 @@ const AgentId = () => {
                     {agentsRoundsWon &&
                       agentsRoundsWon.map((round: any) => (
                         <Tr key={round.id}>
-                          <Td>{round.id}</Td>
+                          <Td>{round.id.slice(0, 16)}...</Td>
                           <Td>{getTime(round.blockTimestamp)}</Td>
                           <Td>
                             <a
-                              href={
-                                `https://mumbai.polygonscan.com/tx/${round.transactionHash}`
-                              }
+                              href={`https://mumbai.polygonscan.com/tx/${round.transactionHash}`}
                               target="_blank"
                               className="text-blue-500"
                             >

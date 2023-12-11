@@ -11,7 +11,9 @@ import {
 import { getAllAgents } from "@/utils/graphFunctions";
 import { getAgentFirebase, getAvgRating } from "@/firebase/firebaseFunctions";
 import Navbar from "@/components/navbar";
-import Loading from "@/components/Animation/Loading";
+// import Loading from "@/components/Animation/Loading";
+import { useChainId } from "wagmi";
+
 interface agentDataType {
   agentId: number;
   assistantId: number;
@@ -24,7 +26,7 @@ interface agentDataType {
 const Index = () => {
   const [agentsData, setAgentsData] = useState<agentDataType[] | undefined>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
+  const chainID = useChainId();
   const getAssistant = async (assistantID: string) => {
     console.log("Fetching thread... Calling OpenAI");
     if (!assistantID) {
@@ -78,7 +80,7 @@ const Index = () => {
       assistantId: agentGraphData?.assistantId,
       agentName: assitantData?.name,
       agentDesciption: assitantData?.description,
-      agentRating: firebaseData?.toString()||"0",
+      agentRating: firebaseData?.toString() || "0",
       agentCategory: agentGraphData?.agentCategory,
     };
     return agentData;
@@ -116,7 +118,7 @@ const Index = () => {
     if (!agentsData) {
       getAgents();
     }
-  }, []);
+  }, [chainID]);
   const router = useRouter();
   return (
     <div className="w-screen h-screen bg-gradient-to-r from-white via-white to-rose-100">
@@ -165,7 +167,7 @@ const Index = () => {
         </div>
         <div className="mt-10 w-5/6 mx-auto">
           {agentsData && agentsData?.length > 0 ? (
-            <div className="grid grid-flow-col grid-cols-3 gap-x-10 gap-y-10">
+            <div className="grid grid-flow-row grid-cols-3 gap-x-10 gap-y-10">
               {agentsData.map((agent) => (
                 <div className="px-6 py-3 bg-white border-b-8 shadow-xl border border-black">
                   <div className="flex mx-auto">
@@ -199,7 +201,8 @@ const Index = () => {
           ) : (
             <div className="flex flex-col items-center ">
               {!agentsData || agentsData?.length != 0 ? (
-                <Loading />
+                // <Loading />
+                <a>Loading...</a>
               ) : (
                 <div className="flex flex-col items-center text-black">
                   <p>No Agents Found</p>

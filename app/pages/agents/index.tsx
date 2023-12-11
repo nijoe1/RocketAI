@@ -11,7 +11,7 @@ import {
 import { getAllAgents } from "@/utils/graphFunctions";
 import { getAgentFirebase, getAvgRating } from "@/firebase/firebaseFunctions";
 import Navbar from "@/components/navbar";
-// import Loading from "@/components/Animation/Loading";
+import Loading from "@/components/Animation/Loading";
 import { useChainId } from "wagmi";
 
 interface agentDataType {
@@ -201,8 +201,8 @@ const Index = () => {
           ) : (
             <div className="flex flex-col items-center ">
               {!agentsData || agentsData?.length != 0 ? (
-                // <Loading />
-                <a>Loading...</a>
+                <Loading />
+                // <a>Loading...</a>
               ) : (
                 <div className="flex flex-col items-center text-black">
                   <p>No Agents Found</p>
